@@ -1,0 +1,12 @@
+streamlit>=1.25.0
+tensorflow==2.11.0
+pillow
+numpy
+pandas
+requests
+scikit-learn
+matplotlib
+seaborn
+huggingface-hub
+protobuf==3.20.0
+opencv-python
