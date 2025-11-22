@@ -351,7 +351,9 @@ with st.sidebar:
 # Load all models
 st.info("Loading models...")
 try:
-    seg_model = load_segmentation_model(seg_model_path, seg_load_method)
+    with st.spinner("Loading segmentation model..."):
+        seg_model = load_segmentation_model(seg_model_path, seg_load_method)
+
     st.success("✅ Segmentation model loaded!")
 except Exception as e:
     st.error(f"❌ Error loading segmentation model: {str(e)}")
