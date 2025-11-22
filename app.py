@@ -146,7 +146,7 @@ def build_unet_cbam(input_shape=(256, 256, 3)):
 
 # Load models with caching
 @st.cache_resource
-def load_segmentation_model(model_path, load_method='direct'):
+def load_segmentation_model(model_path, load_method='d'):
     """Load the trained segmentation model"""
     custom_objects = {
         'CBAM': CBAM,
@@ -166,7 +166,6 @@ def load_segmentation_model(model_path, load_method='direct'):
             )
             return model
         except Exception as e:
-            st.warning(f"Direct loading failed: {str(e)}")
             load_method = 'weights'
     
     if load_method == 'weights':
@@ -177,7 +176,7 @@ def load_segmentation_model(model_path, load_method='direct'):
             loss=combined_loss_weighted,
             metrics=['accuracy', dice_metric]
         )
-        
+
         return model
 
 @st.cache_resource
