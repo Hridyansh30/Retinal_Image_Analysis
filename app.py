@@ -169,6 +169,8 @@ def load_segmentation_model(model_path, load_method='direct'):
             loss=combined_loss_weighted,
             metrics=['accuracy', dice_metric]
         )
+
+        model.summary(print_fn=lambda x: None)
         return model
 
 @st.cache_resource
@@ -301,7 +303,7 @@ with st.sidebar:
     st.header("⚙️ Model Configuration")
     
     st.subheader("Segmentation Model")
-    
+
     seg_model_path = hf_hub_download(
     repo_id="Hridyanshh/retinal-models",
     filename="segmentation.keras"
