@@ -1,3 +1,7 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"     # Disable TF logs
+os.environ["KERAS_BACKEND"] = "tensorflow"  # Avoid backend warnings
+
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.models import load_model, Model
@@ -11,6 +15,10 @@ from PIL import Image
 import io
 
 from huggingface_hub import hf_hub_download
+
+import logging
+tf.get_logger().setLevel(logging.ERROR)
+st.set_option("client.showErrorDetails", False)
 
 
 # Set page config
@@ -169,8 +177,7 @@ def load_segmentation_model(model_path, load_method='direct'):
             loss=combined_loss_weighted,
             metrics=['accuracy', dice_metric]
         )
-
-        model.summary(print_fn=lambda x: None)
+        
         return model
 
 @st.cache_resource
