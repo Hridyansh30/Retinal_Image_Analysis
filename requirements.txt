@@ -1,12 +1,7 @@
-streamlit>=1.25.0
-tensorflow==2.11.0
-pillow
+streamlit
+tensorflow-cpu==2.13.0
 numpy
+pillow
 pandas
-requests
-scikit-learn
-matplotlib
-seaborn
-huggingface-hub
-protobuf==3.20.0
-opencv-python
+huggingface_hub
+opencv-python-headless

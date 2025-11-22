@@ -10,6 +10,9 @@ import numpy as np
 from PIL import Image
 import io
 
+from huggingface_hub import hf_hub_download
+
+
 # Set page config
 st.set_page_config(
     page_title="Fundus Image Analysis",
@@ -298,10 +301,12 @@ with st.sidebar:
     st.header("⚙️ Model Configuration")
     
     st.subheader("Segmentation Model")
-    seg_model_path = st.text_input(
-        "Segmentation Model Path", 
-        value="models/segmentation.keras"
-    )
+    
+    seg_model_path = hf_hub_download(
+    repo_id="Hridyanshh/retinal-models",
+    filename="segmentation.keras"
+)
+
     
     seg_load_method = st.radio(
         "Load Method",
@@ -310,15 +315,16 @@ with st.sidebar:
     )
     
     st.subheader("Classification Models")
-    inception_path = st.text_input(
-        "InceptionV3 Fusion Model",
-        value="models/best_inceptionv3_fusion.keras"
+    inception_path = hf_hub_download(
+        repo_id="Hridyanshh/retinal-models",
+        filename="best_inceptionv3_fusion.keras"
     )
-    
-    xception_path = st.text_input(
-        "Xception Fusion Model",
-        value="models/best_xception_fusion.keras"
+
+    xception_path = hf_hub_download(
+        repo_id="Hridyanshh/retinal-models",
+        filename="best_xception_fusion.keras"
     )
+
     
     st.divider()
     
