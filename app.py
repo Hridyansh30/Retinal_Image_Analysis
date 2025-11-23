@@ -314,7 +314,7 @@ with st.sidebar:
 
     seg_model_path = hf_hub_download(
     repo_id="Hridyanshh/retinal-models",
-    filename="segmentation.keras"
+    filename="UNet_efficientb0_finetune_cbam (1).keras"
 )
 
     
