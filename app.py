@@ -1,6 +1,8 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"     # Disable TF logs
 os.environ["KERAS_BACKEND"] = "tensorflow"  # Avoid backend warnings
+# Fix protobuf / TensorFlow compatibility on HF Spaces
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 import streamlit as st
 import tensorflow as tf
