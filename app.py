@@ -1,9 +1,3 @@
-import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"     # Disable TF logs
-os.environ["KERAS_BACKEND"] = "tensorflow"  # Avoid backend warnings
-# Fix protobuf / TensorFlow compatibility on HF Spaces
-os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
-
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.models import load_model, Model
@@ -15,13 +9,6 @@ from tensorflow.keras.layers import (Layer, Dense, Conv2D, Multiply, Input,
 import numpy as np
 from PIL import Image
 import io
-
-from huggingface_hub import hf_hub_download
-
-import logging
-tf.get_logger().setLevel(logging.ERROR)
-st.set_option("client.showErrorDetails", False)
-
 
 # Set page config
 st.set_page_config(
@@ -148,7 +135,7 @@ def build_unet_cbam(input_shape=(256, 256, 3)):
 
 # Load models with caching
 @st.cache_resource
-def load_segmentation_model(model_path, load_method='d'):
+def load_segmentation_model(model_path, load_method='direct'):
     """Load the trained segmentation model"""
     custom_objects = {
         'CBAM': CBAM,
@@ -168,6 +155,7 @@ def load_segmentation_model(model_path, load_method='d'):
             )
             return model
         except Exception as e:
+            st.warning(f"Direct loading failed: {str(e)}")
             load_method = 'weights'
     
     if load_method == 'weights':
@@ -178,7 +166,6 @@ def load_segmentation_model(model_path, load_method='d'):
             loss=combined_loss_weighted,
             metrics=['accuracy', dice_metric]
         )
-
         return model
 
 @st.cache_resource
@@ -267,19 +254,19 @@ def adaptive_threshold(mask, mean_confidence):
     High confidence -> use standard threshold (0.5)
     Low confidence -> use lower threshold to capture vessels
     """
-    if mean_confidence >= 0.6:
+    if mean_confidence >= 0.4:
         # High confidence - use standard threshold
         threshold = 0.5
         confidence_level = "High"
-    elif mean_confidence >= 0.4:
+    elif mean_confidence >= 0.3:
         # Medium-high confidence
         threshold = 0.4
         confidence_level = "Medium-High"
-    elif mean_confidence >= 0.25:
+    elif mean_confidence >= 0.2:
         # Medium confidence - lower threshold
         threshold = 0.3
         confidence_level = "Medium"
-    elif mean_confidence >= 0.15:
+    elif mean_confidence >= 0.1:
         # Low confidence - much lower threshold
         threshold = 0.2
         confidence_level = "Low"
@@ -311,12 +298,10 @@ with st.sidebar:
     st.header("⚙️ Model Configuration")
     
     st.subheader("Segmentation Model")
-
-    seg_model_path = hf_hub_download(
-    repo_id="Hridyanshh/retinal-models",
-    filename="UNet_efficientb0_finetune_cbam (1).keras"
-)
-
+    seg_model_path = st.text_input(
+        "Segmentation Model Path", 
+        value="models/segmentation.keras"
+    )
     
     seg_load_method = st.radio(
         "Load Method",
@@ -325,16 +310,15 @@ with st.sidebar:
     )
     
     st.subheader("Classification Models")
-    inception_path = hf_hub_download(
-        repo_id="Hridyanshh/retinal-models",
-        filename="best_inceptionv3_fusion.keras"
+    inception_path = st.text_input(
+        "InceptionV3 Fusion Model",
+        value="models/best_inceptionv3_fusion.keras"
     )
-
-    xception_path = hf_hub_download(
-        repo_id="Hridyanshh/retinal-models",
-        filename="best_xception_fusion.keras"
+    
+    xception_path = st.text_input(
+        "Xception Fusion Model",
+        value="models/best_xception_fusion.keras"
     )
-
     
     st.divider()
     
@@ -359,9 +343,7 @@ with st.sidebar:
 # Load all models
 st.info("Loading models...")
 try:
-    with st.spinner("Loading segmentation model..."):
-        seg_model = load_segmentation_model(seg_model_path, seg_load_method)
-
+    seg_model = load_segmentation_model(seg_model_path, seg_load_method)
     st.success("✅ Segmentation model loaded!")
 except Exception as e:
     st.error(f"❌ Error loading segmentation model: {str(e)}")
